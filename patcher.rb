@@ -34,12 +34,19 @@ when /mswin/
 when /darwin/
  raise "Not implemented yet"
 end
-unless ARGV.length > 0
-  puts "ERROR: Patch version not provided\n\n"
-  exit
+if ARGV.length > 0
+  requested_version = ARGV.to_s
+else
+  print "Trying to get the newest version..."
+  requested_version = Net::HTTP.post_form(
+    URI.parse('http://masterserver.hon.s2games.com/patcher/patcher.php'),
+    {'version' => '0.1.1', 'os' => os, 'arch' => arch}
+  ).body.match(/s:8:"([\d\.]*)\"/)[1]
+  # Looks like the last .0 isn't used in the file tree
+  requested_version.sub!(/\.0$/,"")
+  print " found " + requested_version + "\n"
 end
 
-requested_version = ARGV.to_s
 puts "Requested version...\t#{requested_version}"
 print "Fetching manifest..."
 
