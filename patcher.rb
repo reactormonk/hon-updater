@@ -24,6 +24,16 @@ puts ""
 puts "Heroes of Newerth Patch Grabber"
 puts "==============================="
 
+case RUBY_PLATFORM.downcase
+when /linux/
+ os = "lac"
+ arch = "x86-biarch"
+when /mswin/
+ os = "wac"
+ arch = "i686"
+when /darwin/
+ raise "Not implemented yet"
+end
 unless ARGV.length > 0
   puts "ERROR: Patch version not provided\n\n"
   exit
@@ -36,7 +46,7 @@ print "Fetching manifest..."
 manifest_file = "manifest-#{requested_version}.xml"
 
 Net::HTTP.start(server) { |http|
-  resp = http.get("/wac/i686/#{requested_version}/manifest.xml.zip")
+  resp = http.get("/#{os}/#{arch}/#{requested_version}/manifest.xml.zip")
   if resp.response.code.to_i == 200
     open("#{manifest_file}.zip", "wb") { |file|
       file.write(resp.body)
@@ -83,7 +93,7 @@ Net::HTTP.start(server) { |http|
   new_counter = 1
   files_changed.each do |file|
     # Parse URL
-    url = URI.parse("http://#{server}/wac/i686/#{short_version}/#{file}.zip")
+    url = URI.parse("http://#{server}/#{os}/#{arch}/#{short_version}/#{file}.zip")
 
     # Get the folder out
     folder = url.path.split(File.basename(url.path))[0]
